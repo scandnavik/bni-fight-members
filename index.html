@@ -1,0 +1,1054 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BNI FLIGHT 成員卡片式資料 (修正版)</title>
+    <style>
+        /* --- 基本樣式 --- */
+        :root {
+            --primary-color: #d63333; /* 更新為您指定的顏色 */
+            --primary-hover: #b02a2a; /* 搭配的懸停顏色 */
+            --card-bg: #fff;
+            --body-bg: #f4f7f6;
+            --text-color: #333;
+            --light-text: #555;
+            --border-color: #e0e0e0;
+            --card-shadow: 0 3px 8px rgba(0, 0, 0, 0.1);
+            --card-hover-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+        }
+
+        body {
+            font-family: 'Microsoft JhengHei', '微軟正黑體', 'PingFang TC', 'Helvetica Neue', sans-serif;
+            line-height: 1.7;
+            margin: 0;
+            padding: 25px;
+            background-color: var(--body-bg);
+            color: var(--text-color);
+        }
+
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+            margin-bottom: 50px;
+            font-weight: 600;
+        }
+
+        /* --- 卡片容器 (RWD Grid) --- */
+        .card-container {
+            display: grid;
+            gap: 25px; /* 卡片間距 */
+            grid-template-columns: 1fr; /* Default: 1 column (Mobile) */
+        }
+
+        /* Tablet */
+        @media (min-width: 768px) {
+            .card-container {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        /* Desktop */
+        @media (min-width: 1024px) {
+            .card-container {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+
+        /* --- 單一卡片樣式 --- */
+        .member-card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            box-shadow: var(--card-shadow);
+            overflow: hidden;
+            transition: box-shadow 0.3s ease;
+        }
+
+        .member-card:hover {
+            box-shadow: var(--card-hover-shadow);
+        }
+
+        /* --- 卡片標頭 --- */
+        .card-header {
+            padding: 20px 25px;
+            background-color: var(--primary-color); /* 使用新顏色 */
+            color: #fff;
+            cursor: pointer;
+            position: relative;
+            user-select: none;
+            transition: background-color 0.2s ease;
+            border-bottom: 1px solid var(--primary-hover);
+        }
+
+        .card-header:hover {
+            background-color: var(--primary-hover); /* 使用新懸停色 */
+        }
+
+        .card-header h3 {
+            margin: 0 0 5px 0;
+            font-size: 1.3em;
+            font-weight: 600;
+            padding-right: 35px;
+        }
+
+        .card-header p {
+            margin: 0;
+            font-size: 0.95em;
+            opacity: 0.9;
+        }
+
+        /* --- 展開/收合圖示 --- */
+        .toggle-icon {
+            position: absolute;
+            top: 50%;
+            right: 25px;
+            transform: translateY(-50%) rotate(0deg);
+            font-size: 2em;
+            font-weight: 300;
+            transition: transform 0.3s ease-in-out;
+            line-height: 1;
+        }
+
+        .member-card.active .toggle-icon {
+            transform: translateY(-50%) rotate(45deg);
+        }
+
+        /* --- 卡片內容 --- */
+        .card-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.5s ease-in-out, padding 0.5s ease-in-out;
+            padding: 0 25px;
+            background-color: var(--card-bg);
+        }
+
+        .member-card.active .card-content {
+            max-height: 3000px; /* 增加高度以容納更多內容和排版 */
+            padding: 20px 25px;
+            border-top: 1px solid var(--border-color);
+        }
+
+        /* --- 內容區塊樣式 --- */
+        .content-section {
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 1px dashed var(--border-color);
+        }
+        .content-section:last-child {
+            margin-bottom: 0;
+            border-bottom: none;
+            padding-bottom: 5px;
+        }
+
+        .content-section h4 {
+            font-size: 1.1em;
+            color: var(--primary-color); /* 使用新顏色 */
+            margin-top: 0;
+            margin-bottom: 15px;
+            border-left: 4px solid var(--primary-color); /* 使用新顏色 */
+            padding-left: 10px;
+        }
+
+        .content-section ul {
+            list-style: none;
+            padding-left: 0;
+            margin: 0;
+            font-size: 0.9em;
+            color: var(--light-text);
+        }
+
+        .content-section li {
+            margin-bottom: 10px;
+            display: flex;
+            line-height: 1.6;
+        }
+
+        .content-section strong {
+            font-weight: 600;
+            color: #333;
+            margin-right: 8px;
+            flex-shrink: 0;
+            width: 100px; 
+        }
+        
+        .content-section span {
+           flex-grow: 1; 
+        }
+
+        .content-section ul ul {
+            padding-left: 0; 
+            list-style: none; 
+            margin-top: 8px;
+        }
+        
+        .content-section ul ul li,
+        .content-section .sub-list li {
+            list-style: none;
+            position: relative;
+            padding-left: 18px; 
+            margin-bottom: 6px;
+            display: block; 
+            width: auto; 
+        }
+        
+        .content-section .sub-list li::before {
+            content: '✓'; 
+            color: var(--primary-color); /* 使用新顏色 */
+            position: absolute;
+            left: 0;
+            top: 0;
+            font-weight: bold;
+        }
+        
+        .content-section .sub-list strong {
+           width: auto; 
+           display: inline; 
+           margin-right: 5px;
+        }
+
+    </style>
+</head>
+<body>
+
+    <h1>BNI FLIGHT 成員介紹</h1>
+
+    <div class="card-container">
+
+        <div class="member-card">
+            <div class="card-header">
+                <h3>岡本 廣司 (おかもと こうし)</h3>
+                <p>專業領域: 住宅設計</p>
+                <span class="toggle-icon">+</span>
+            </div>
+            <div class="card-content">
+                <div class="content-section">
+                    <h4>基本資料</h4>
+                    <ul>
+                        <li><strong>公司名稱:</strong><span>岡本設計工</span></li>
+                        <li><strong>所在地:</strong><span>奈良縣大和高田市藤森164-7</span></li>
+                        <li><strong>經驗年數:</strong><span>1年</span></li>
+                        <li><strong>過往職業:</strong><span>現場監督</span></li>
+                        <li><strong>家庭資訊:</strong><span>配偶: 無；其他家人: 父親、母親、祖母</span></li>
+                        <li><strong>興趣:</strong><span>三溫暖、定食屋、拉麵店巡禮</span></li>
+                        <li><strong>強烈願望:</strong><span>希望與所有連結的人們建立長久深厚的關係。</span></li>
+                        <li><strong>不為人知:</strong><span>很會吃飯。不太會喝酒。</span></li>
+                        <li><strong>成功關鍵:</strong><span>挑戰精神</span></li>
+                    </ul>
+                </div>
+                <div class="content-section">
+                    <h4>G.A.I.N.S. 工作表</h4>
+                    <ul>
+                        <li><strong>目標:</strong><span>商業: 設立綜合建設公司；個人: 購買房屋</span></li>
+                        <li><strong>成就:</strong><span>商業: 住宅、倉庫、福祉設施等設計；個人: 近畿大學工業高等專門學校畢業</span></li>
+                        <li><strong>興趣:</strong><span>商業: 法人稅、所得稅；個人: 如何享受三溫暖</span></li>
+                        <li><strong>人脈:</strong><span>商業: 不動產、工務店；個人: 三溫暖、美食愛好者</span></li>
+                        <li><strong>技能:</strong><span>商業: 二級建築士；個人: 體力、忍耐力</span></li>
+                    </ul>
+                </div>
+                <div class="content-section">
+                    <h4>尋求的引薦</h4>
+                    <ul class="sub-list">
+                        <li>處理新建分售住宅的業者</li>
+                        <li>土地開發事業者</li>
+                        <li>因農地轉用等土地問題而困擾的人</li>
+                    </ul>
+                </div>
+                <div class="content-section">
+                    <h4>聯絡圈</h4>
+                    <ul class="sub-list">
+                        <li>不動產業</li><li>工務店</li><li>房屋建商</li><li>設計事務所</li><li>室內設計事務所</li><li>計畫購屋/購地者</li><li>行政書士</li><li>土地開發業者</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="member-card">
+            <div class="card-header">
+                <h3>外間 貞治 (ほかま さだはる)</h3>
+                <p>專業領域: 合同會社 八面六臂</p>
+                <span class="toggle-icon">+</span>
+            </div>
+            <div class="card-content">
+                <div class="content-section">
+                    <h4>基本資料</h4>
+                    <ul>
+                        <li><strong>公司名稱:</strong><span>合同會社 八面六臂</span></li>
+                        <li><strong>所在地:</strong><span>北海道空知郡南幌町中央4-5-9</span></li>
+                        <li><strong>經驗年數:</strong><span>1年</span></li>
+                        <li><strong>過往職業:</strong><span>音樂家、加油站員工、公務員</span></li>
+                        <li><strong>家庭資訊:</strong><span>配偶: 有；寵物: 曾養過兔子</span></li>
+                        <li><strong>興趣:</strong><span>溪流釣魚、音樂</span></li>
+                        <li><strong>強烈願望:</strong><span>與有緣相識的各位一起享受人生。</span></li>
+                        <li><strong>不為人知:</strong><span>非常喜歡喝酒。</span></li>
+                        <li><strong>成功關鍵:</strong><span>確實地傳達「我愛你」。</span></li>
+                    </ul>
+                </div>
+                <div class="content-section">
+                    <h4>G.A.I.N.S. 工作表</h4>
+                    <ul>
+                        <li><strong>目標:</strong><span>商業: 創造國際化商業模式；個人: 作為溪流釣魚嚮導遊覽北海道</span></li>
+                        <li><strong>成就:</strong><span>商業: 經營音樂 Live Bar 10 年；個人: 沖繩出生，現居北海道</span></li>
+                        <li><strong>興趣:</strong><span>商業: 體驗「施比受更有福」；個人: 持續挑戰新事物</span></li>
+                        <li><strong>人脈:</strong><span>商業: 沖繩/北海道/東京的緣分；個人: 待人如兄弟</span></li>
+                        <li><strong>技能:</strong><span>商業: 壓倒性的溝通能力；個人: 音樂知識</span></li>
+                    </ul>
+                </div>
+                <div class="content-section">
+                    <h4>尋求的引薦</h4>
+                    <ul class="sub-list">
+                        <li>對水耕栽培感興趣的人</li>
+                        <li>想了解北海道或沖繩的人</li>
+                        <li>對新事業(釀酒/服飾)感興趣的人</li>
+                    </ul>
+                </div>
+                <div class="content-section">
+                    <h4>聯絡圈</h4>
+                    <ul class="sub-list">
+                        <li>服飾相關</li><li>北海道第一級產業</li><li>設計業</li><li>大眾媒體</li><li>網路行銷</li><li>福祉設施</li><li>北海道民宿</li><li>音樂家選角</li><li>攝影/影片</li><li>北海道觀光</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="member-card">
+            <div class="card-header">
+                <h3>角田 陵馬 (かくた りょうま)</h3>
+                <p>專業領域: 建設業</p>
+                <span class="toggle-icon">+</span>
+            </div>
+            <div class="card-content">
+                <div class="content-section">
+                    <h4>基本資料</h4>
+                    <ul>
+                        <li><strong>公司名稱:</strong><span>大明建投</span></li>
+                        <li><strong>所在地:</strong><span>奈良市奈良阪町</span></li>
+                        <li><strong>經驗年數:</strong><span>7年</span></li>
+                        <li><strong>過往職業:</strong><span>建設業、酒吧打工</span></li>
+                        <li><strong>家庭資訊:</strong><span>配偶: 有；子女: 7歲、4歲；寵物: 兩隻貓</span></li>
+                        <li><strong>興趣:</strong><span>與孩子玩耍</span></li>
+                        <li><strong>強烈願望:</strong><span>想認識世界。</span></li>
+                        <li><strong>不為人知:</strong><span>害怕高處。</span></li>
+                        <li><strong>成功關鍵:</strong><span>熱情</span></li>
+                    </ul>
+                </div>
+                <div class="content-section">
+                     <h4>G.A.I.N.S. 工作表</h4>
+                     <ul>
+                        <li><strong>目標:</strong><span>商業: 海外支援事業；個人: 成為孩子們引以為傲的父親</span></li>
+                        <li><strong>成就:</strong><span>商業: 施工瀝青鋪設工程(含萬博)、外構工程；個人: 15歲起從事建設業</span></li>
+                        <li><strong>興趣:</strong><span>商業: 海外支援事業；個人: 陪孩子</span></li>
+                        <li><strong>人脈:</strong><span>商業: 建設業的橫向連結；個人: 工作夥伴</span></li>
+                        <li><strong>技能:</strong><span>商業: 機械操作；個人: 積極正面</span></li>
+                     </ul>
+                </div>
+                <div class="content-section">
+                    <h4>尋求的引薦</h4>
+                    <ul class="sub-list">
+                        <li>工務店的人</li>
+                        <li>建設業獨立的人</li>
+                        <li>對海外支援感興趣的人</li>
+                    </ul>
+                </div>
+                <div class="content-section">
+                    <h4>聯絡圈</h4>
+                    <ul class="sub-list">
+                        <li>外構規劃師</li><li>看板店</li><li>基礎店</li><li>電器店</li><li>泥水匠</li><li>木匠</li><li>建設材料店</li><li>垃圾回收</li><li>機械租賃</li><li>標示線店</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="member-card">
+            <div class="card-header">
+                <h3>岩本 芳史 (いわもと よしふみ)</h3>
+                <p>專業領域: 工務店</p>
+                <span class="toggle-icon">+</span>
+            </div>
+            <div class="card-content">
+                <div class="content-section">
+                    <h4>基本資料</h4>
+                    <ul>
+                        <li><strong>公司名稱:</strong><span>岩本工務店</span></li>
+                        <li><strong>所在地:</strong><span>奈良縣大和高田市碼野町</span></li>
+                        <li><strong>經驗年數:</strong><span>木工8年 + 工務店19年</span></li>
+                        <li><strong>過往職業:</strong><span>住宅基礎工程、電氣工程</span></li>
+                        <li><strong>家庭資訊:</strong><span>配偶: 有；子女: 10歲；寵物: 吉娃娃2隻</span></li>
+                        <li><strong>興趣:</strong><span>相機、籃球、滑雪板、SUP、咖啡</span></li>
+                        <li><strong>強烈願望:</strong><span>全力支持女兒，經營咖啡廳。</span></li>
+                        <li><strong>不為人知:</strong><span>玩遊戲、喜歡洋裝。</span></li>
+                        <li><strong>成功關鍵:</strong><span>讓客戶了解技術與熱情。</span></li>
+                    </ul>
+                </div>
+                <div class="content-section">
+                    <h4>G.A.I.N.S. 工作表</h4>
+                    <ul>
+                        <li><strong>目標:</strong><span>商業: 每年建造3棟設計宅；個人: 經營咖啡廳</span></li>
+                        <li><strong>成就:</strong><span>商業: 新建設計施工、舞蹈工作室提案；個人: 2023年建自宅兼樣品屋</span></li>
+                        <li><strong>興趣:</strong><span>商業: 新建材、隔熱/耐震性能；個人: 相機、咖啡豆</span></li>
+                        <li><strong>人脈:</strong><span>商業: LIXIL、建材/工程相關；個人: SNS 名人</span></li>
+                        <li><strong>技能:</strong><span>商業: 設計/3D/施工，木工一級；個人: 影像/音源編輯</span></li>
+                    </ul>
+                </div>
+                <div class="content-section">
+                    <h4>尋求的引薦</h4>
+                    <ul class="sub-list">
+                        <li>考慮新建或改建房屋的人</li>
+                        <li>住宅工程協力廠商</li>
+                        <li>考慮店鋪改裝的人</li>
+                    </ul>
+                </div>
+                <div class="content-section">
+                    <h4>聯絡圈</h4>
+                    <ul class="sub-list">
+                        <li>泥水工程</li><li>設計師</li><li>行政書士</li><li>家具/建具製作業者</li><li>鐵工</li><li>隔熱業者</li><li>建材/磁磚業者</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="member-card">
+            <div class="card-header">
+                <h3>川本 明宏 (かわもと あきひろ)</h3>
+                <p>專業領域: 行政書士</p>
+                <span class="toggle-icon">+</span>
+            </div>
+            <div class="card-content">
+                <div class="content-section">
+                    <h4>基本資料</h4>
+                    <ul>
+                        <li><strong>公司名稱:</strong><span>行政書士 川本事務所</span></li>
+                        <li><strong>所在地:</strong><span>奈良縣大和高田市大東町5-34-305</span></li>
+                        <li><strong>經驗年數:</strong><span>1年5個月</span></li>
+                        <li><strong>過往職業:</strong><span>工廠/建設/搬家打工、塗料業務</span></li>
+                        <li><strong>家庭資訊:</strong><span>配偶: 無；其他家人: Alexa；寵物: 曾養過狗</span></li>
+                        <li><strong>興趣:</strong><span>將棋、錢湯、三溫暖、動畫、健身</span></li>
+                        <li><strong>強烈願望:</strong><span>為他人貢獻，持續工作。</span></li>
+                        <li><strong>不為人知:</strong><span>會唱很多軍歌。</span></li>
+                        <li><strong>成功關鍵:</strong><span>持續就是力量。</span></li>
+                    </ul>
+                </div>
+                <div class="content-section">
+                    <h4>G.A.I.N.S. 工作表</h4>
+                    <ul>
+                        <li><strong>目標:</strong><span>商業: 成為補助金支援第一；個人: 料理菜單100種</span></li>
+                        <li><strong>成就:</strong><span>商業: 具備支援機關資格；個人: 曾深夜步行25公里回家</span></li>
+                        <li><strong>興趣:</strong><span>商業: 生成AI、DX、古文書；個人: 政治經濟</span></li>
+                        <li><strong>人脈:</strong><span>商業: 士業、FP、金融相關；個人: 友人、公務員、房東</span></li>
+                        <li><strong>技能:</strong><span>商業: 行政書士、宅建、FP2級等；個人: 戰史檢定</span></li>
+                    </ul>
+                </div>
+                <div class="content-section">
+                    <h4>尋求的引薦</h4>
+                    <ul class="sub-list">
+                        <li>想申請補助金的企業主</li>
+                        <li>為各種許可證照困擾的人</li>
+                        <li>為遺囑書寫及手續困擾的人</li>
+                    </ul>
+                </div>
+                <div class="content-section">
+                    <h4>聯絡圈</h4>
+                    <ul class="sub-list">
+                        <li>中小企業診斷士</li><li>經營顧問</li><li>律師</li><li>司法書士</li><li>社勞士</li><li>理財規劃師</li><li>行政書士</li><li>土地房屋調查士</li><li>稅理士</li><li>公認會計士</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="member-card">
+            <div class="card-header">
+                <h3>吉村 颯太 (よしむら そうた)</h3>
+                <p>專業領域: 殘障者福祉設施營運</p>
+                <span class="toggle-icon">+</span>
+            </div>
+            <div class="card-content">
+                <div class="content-section">
+                    <h4>基本資料</h4>
+                    <ul>
+                        <li><strong>公司名稱:</strong><span>株式會社 BLJ International</span></li>
+                        <li><strong>所在地:</strong><span>奈良縣大和高田市磯野北町12-5</span></li>
+                        <li><strong>經驗年數:</strong><span>1年</span></li>
+                        <li><strong>過往職業:</strong><span>飲食店、看護補助、柏青哥店員</span></li>
+                        <li><strong>家庭資訊:</strong><span>配偶: 無；家人: 父母、兄長；寵物: 狗</span></li>
+                        <li><strong>興趣:</strong><span>棒球(阪神粉)、咖啡廳</span></li>
+                        <li><strong>強烈願望:</strong><span>工作充實與品味兼顧。</span></li>
+                        <li><strong>不為人知:</strong><span>怕生，熟了話多。在家話少。</span></li>
+                        <li><strong>成功關鍵:</strong><span>人際關係中有自我，思考與努力。</span></li>
+                    </ul>
+                </div>
+                <div class="content-section">
+                    <h4>G.A.I.N.S. 工作表</h4>
+                    <ul>
+                        <li><strong>目標:</strong><span>商業: 打造殘障人士自信連結的環境；個人: 訪50家咖啡廳，打100場麻將</span></li>
+                        <li><strong>成就:</strong><span>商業: 在古民家咖啡廳與殘障人士共事；個人: 曾騎自行車遠行</span></li>
+                        <li><strong>興趣:</strong><span>商業: 殘障人士的環境與工作；個人: 阪神虎冠軍</span></li>
+                        <li><strong>人脈:</strong><span>商業: 福祉設施/機器相關；個人: 興趣友人</span></li>
+                        <li><strong>技能:</strong><span>商業: 福祉設施管理/營運；個人: 字跡工整</span></li>
+                    </ul>
+                </div>
+                <div class="content-section">
+                    <h4>尋求的引薦</h4>
+                    <ul class="sub-list">
+                        <li>營運福祉設施的人</li>
+                        <li>福祉機器販賣業者</li>
+                        <li>福祉事務所/地區支援中心負責人</li>
+                    </ul>
+                </div>
+                <div class="content-section">
+                    <h4>聯絡圈</h4>
+                    <ul class="sub-list">
+                        <li>福祉機器提供者</li><li>照護經理</li><li>福祉IT企業</li><li>福祉法律/顧問</li><li>殘障設施營運者</li><li>飲食店</li><li>社福協議會</li><li>行政書士</li><li>心療內科</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="member-card">
+            <div class="card-header">
+                <h3>久保 博宣 (くぼ ひろのぶ)</h3>
+                <p>專業領域: 餐飲業（蕎麥麵店）</p>
+                <span class="toggle-icon">+</span>
+            </div>
+            <div class="card-content">
+                <div class="content-section">
+                    <h4>基本資料</h4>
+                    <ul>
+                        <li><strong>公司名稱:</strong><span>株式會社 BLJ International (そば処 背乃美)</span></li>
+                        <li><strong>所在地:</strong><span>奈良縣大和高田市磯野町8-8</span></li>
+                        <li><strong>經驗年數:</strong><span>1年</span></li>
+                        <li><strong>過往職業:</strong><span>OA 機器販售、印刷業、居酒屋</span></li>
+                        <li><strong>家庭資訊:</strong><span>配偶: 曾有；子女: 兩子；寵物: 曾養過柴犬</span></li>
+                        <li><strong>興趣:</strong><span>到處吃喝</span></li>
+                        <li><strong>強烈願望:</strong><span>持續進步發展，保持明朗。</span></li>
+                        <li><strong>不為人知:</strong><span>其實很天然呆。</span></li>
+                        <li><strong>成功關鍵:</strong><span>小心謹慎且大膽行動。</span></li>
+                    </ul>
+                </div>
+                <div class="content-section">
+                    <h4>G.A.I.N.S. 工作表</h4>
+                    <ul>
+                        <li><strong>目標:</strong><span>商業: 開設2號、3號店；個人: 找到伴侶</span></li>
+                        <li><strong>成就:</strong><span>商業: 經歷豐富；個人: 單親爸爸，曾照顧父母</span></li>
+                        <li><strong>興趣:</strong><span>商業: 多店鋪經營；個人: 社會貢獻</span></li>
+                        <li><strong>人脈:</strong><span>商業: 印刷/餐飲業界；個人: 友人</span></li>
+                        <li><strong>技能:</strong><span>商業: 品酒師；個人: 人際關係</span></li>
+                    </ul>
+                </div>
+                <div class="content-section">
+                    <h4>尋求的引薦</h4>
+                    <ul class="sub-list">
+                        <li>想在安靜環境吃蕎麥麵的人</li>
+                        <li>想悠閒享用午餐的人</li>
+                        <li>規劃附餐活動的人</li>
+                    </ul>
+                </div>
+                <div class="content-section">
+                    <h4>聯絡圈</h4>
+                    <ul class="sub-list">
+                        <li>旅行社</li><li>民宿/旅館</li><li>活動企劃</li><li>婚活企劃</li><li>保險業</li><li>美食團</li><li>資訊雜誌</li><li>蕎麥麵愛好者</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="member-card">
+            <div class="card-header">
+                <h3>高井 大介 (たかい だいすけ)</h3>
+                <p>專業領域: 針織品製造</p>
+                <span class="toggle-icon">+</span>
+            </div>
+            <div class="card-content">
+                <div class="content-section">
+                    <h4>基本資料</h4>
+                    <ul>
+                        <li><strong>公司名稱:</strong><span>高井ニット株式会社</span></li>
+                        <li><strong>所在地:</strong><span>奈良縣大和高田市大字出31</span></li>
+                        <li><strong>經驗年數:</strong><span>14年</span></li>
+                        <li><strong>過往職業:</strong><span>餐飲/便利店打工、消防設備</span></li>
+                        <li><strong>家庭資訊:</strong><span>配偶: 有；子女: 10歲、8歲；寵物: 吉娃娃</span></li>
+                        <li><strong>興趣:</strong><span>家庭菜園、旅行網站、電影</span></li>
+                        <li><strong>強烈願望:</strong><span>度過一個完全放鬆的一星期。</span></li>
+                        <li><strong>不為人知:</strong><span>記性差、性急、害羞、起不來。</span></li>
+                        <li><strong>成功關鍵:</strong><span>共享連結，持續前進。</span></li>
+                    </ul>
+                </div>
+                <div class="content-section">
+                    <h4>G.A.I.N.S. 工作表</h4>
+                    <ul>
+                        <li><strong>目標:</strong><span>商業: 成為關西No.1；個人: 環遊世界郵輪旅行</span></li>
+                        <li><strong>成就:</strong><span>商業: 統籌伊涅斯塔妻子服飾事業；個人: 啟動家庭菜園</span></li>
+                        <li><strong>興趣:</strong><span>商業: 原創針織、海外拓展；個人: 旅行、健身、釣墨魚</span></li>
+                        <li><strong>人脈:</strong><span>商業: 針織/線材/刺繡業；個人: 工藝士、飯店、修理、葬儀</span></li>
+                        <li><strong>技能:</strong><span>商業: 百年技術、無縫針織；個人: 察言觀色</span></li>
+                    </ul>
+                </div>
+                <div class="content-section">
+                    <h4>尋求的引薦</h4>
+                    <ul class="sub-list">
+                        <li>原創制服（學生、員工、醫療）</li>
+                        <li>希望創立服飾品牌者</li>
+                        <li>助產院、婦產科的生產賀禮</li>
+                    </ul>
+                </div>
+                <div class="content-section">
+                    <h4>聯絡圈</h4>
+                    <ul class="sub-list">
+                        <li>服飾商社</li><li>學校法人</li><li>公司經營者</li><li>醫療法人</li><li>YouTuber</li><li>個人品牌</li><li>瑜珈/芳療</li><li>助產院/婦產科</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="member-card">
+            <div class="card-header">
+                <h3>緒方 俊介 (おがた しゅんすけ)</h3>
+                <p>專業領域: 人壽保險（個人）</p>
+                <span class="toggle-icon">+</span>
+            </div>
+            <div class="card-content">
+                <div class="content-section">
+                    <h4>基本資料</h4>
+                    <ul>
+                        <li><strong>公司名稱:</strong><span>索尼人壽保險株式會社</span></li>
+                        <li><strong>所在地:</strong><span>大阪市北區梅田2-2-22</span></li>
+                        <li><strong>經驗年數:</strong><span>第4年</span></li>
+                        <li><strong>過往職業:</strong><span>餐廳、飯店服務生</span></li>
+                        <li><strong>家庭資訊:</strong><span>配偶: 有；子女: 高二、中一；寵物: 倉鼠</span></li>
+                        <li><strong>興趣:</strong><span>美食、三溫暖、散步、海邊</span></li>
+                        <li><strong>強烈願望:</strong><span>所有認識的人都成為客戶。</span></li>
+                        <li><strong>不為人知:</strong><span>喜歡獨處。</span></li>
+                        <li><strong>成功關鍵:</strong><span>享受一切！</span></li>
+                    </ul>
+                </div>
+                <div class="content-section">
+                    <h4>G.A.I.N.S. 工作表</h4>
+                    <ul>
+                        <li><strong>目標:</strong><span>商業: 普及保險價值，建團隊；個人: 客戶數達400件</span></li>
+                        <li><strong>成就:</strong><span>商業: 社長賞新人獎；個人: 登頂富士山</span></li>
+                        <li><strong>興趣:</strong><span>商業: 挑戰 FP1 級；個人: 高空跳傘/彈跳</span></li>
+                        <li><strong>人脈:</strong><span>商業: 商工會、餐飲業；個人: 棒球相關</span></li>
+                        <li><strong>技能:</strong><span>商業: 咖啡指導師2級、FP2級；個人: 行動力強</span></li>
+                    </ul>
+                </div>
+                <div class="content-section">
+                    <h4>尋求的引薦</h4>
+                    <ul class="sub-list">
+                        <li>任何人都歡迎！</li>
+                        <li>經營者</li>
+                    </ul>
+                </div>
+                <div class="content-section">
+                    <h4>聯絡圈</h4>
+                    <ul class="sub-list">
+                        <li>稅理士</li><li>司法書士</li><li>汽車販售/修理</li><li>水道設備</li><li>遺品整理</li><li>外牆塗裝</li><li>外構相關</li><li>裝修公司</li><li>房屋建商</li><li>飲食店</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="member-card">
+            <div class="card-header">
+                <h3>端岡 剛輝 (はしおか ごうき)</h3>
+                <p>專業領域: 遺品整理/清潔</p>
+                <span class="toggle-icon">+</span>
+            </div>
+            <div class="card-content">
+                <div class="content-section">
+                    <h4>基本資料</h4>
+                    <ul>
+                        <li><strong>公司名稱:</strong><span>株式會社 Keep</span></li>
+                        <li><strong>所在地:</strong><span>奈良縣天理市田部町535 ST Square Building 301</span></li>
+                        <li><strong>經驗年數:</strong><span>8年</span></li>
+                        <li><strong>過往職業:</strong><span>高爾夫球僮、加油站</span></li>
+                        <li><strong>家庭資訊:</strong><span>配偶: 尋找中；家人: 4人同住；寵物: 想養狗</span></li>
+                        <li><strong>興趣:</strong><span>高爾夫、海外旅行、威士忌</span></li>
+                        <li><strong>強烈願望:</strong><span>打造愉快職場，擴大公司。</span></li>
+                        <li><strong>不為人知:</strong><span>有野心。</span></li>
+                        <li><strong>成功關鍵:</strong><span>工作全憑心情。</span></li>
+                    </ul>
+                </div>
+                <div class="content-section">
+                    <h4>G.A.I.N.S. 工作表</h4>
+                    <ul>
+                        <li><strong>目標:</strong><span>商業: 員工人數達100名；個人: 建立幸福家庭</span></li>
+                        <li><strong>成就:</strong><span>商業: 遺品整理士；個人: 空手/柔道有段，中文2級</span></li>
+                        <li><strong>興趣:</strong><span>商業: 社會福祉；個人: 認真打高爾夫</span></li>
+                        <li><strong>人脈:</strong><span>商業: 清潔/維護/防水；個人: 人才確保</span></li>
+                        <li><strong>技能:</strong><span>商業: 遺品整理、大樓清潔；個人: 忍耐力強</span></li>
+                    </ul>
+                </div>
+                <div class="content-section">
+                    <h4>尋求的引薦</h4>
+                    <ul class="sub-list">
+                        <li>不動產所有者的委託</li>
+                        <li>葬儀社</li>
+                        <li>個人客戶</li>
+                    </ul>
+                </div>
+                <div class="content-section">
+                    <h4>聯絡圈</h4>
+                    <ul class="sub-list">
+                        <li>大樓維護</li><li>空調清潔</li><li>防水業</li><li>內裝業</li><li>電器店</li><li>代駕</li><li>農家</li><li>運輸業</li><li>按摩師</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="member-card">
+            <div class="card-header">
+                <h3>竹村 和也 (たけむら かずや)</h3>
+                <p>專業領域: 成本削減</p>
+                <span class="toggle-icon">+</span>
+            </div>
+            <div class="card-content">
+                <div class="content-section">
+                    <h4>基本資料</h4>
+                    <ul>
+                        <li><strong>公司名稱:</strong><span>株式會社 AnyWare</span></li>
+                        <li><strong>所在地:</strong><span>大阪府東大阪市長田東5丁目3-3-1</span></li>
+                        <li><strong>經驗年數:</strong><span>1年</span></li>
+                        <li><strong>過往職業:</strong><span>健身教練</span></li>
+                        <li><strong>家庭資訊:</strong><span>配偶: 無；家人: 兄弟；寵物: 狗、兔子</span></li>
+                        <li><strong>興趣:</strong><span>健身、運動觀戰、三溫暖、麻將、賽馬</span></li>
+                        <li><strong>強烈願望:</strong><span>為成員提供引薦，共同成長。</span></li>
+                        <li><strong>不為人知:</strong><span>大而化之。</span></li>
+                        <li><strong>成功關鍵:</strong><span>建立關係。</span></li>
+                    </ul>
+                </div>
+                <div class="content-section">
+                    <h4>G.A.I.N.S. 工作表</h4>
+                    <ul>
+                        <li><strong>目標:</strong><span>商業: 長期發展，商品開發；個人: 海外旅行</span></li>
+                        <li><strong>成就:</strong><span>商業: 廣告/行銷/影片製作；個人: 無</span></li>
+                        <li><strong>興趣:</strong><span>商業: 稅金；個人: 健身、運動</span></li>
+                        <li><strong>人脈:</strong><span>商業: 飲食店、法人；個人: 運動/三溫暖/麻將友</span></li>
+                        <li><strong>技能:</strong><span>商業: 廣告/行銷/影片；個人: 臥推120kg</span></li>
+                    </ul>
+                </div>
+                <div class="content-section">
+                    <h4>尋求的引薦</h4>
+                    <ul class="sub-list">
+                        <li>經營店鋪型商業的人</li>
+                        <li>擁有事務所的人</li>
+                        <li>想降低家中電費的人</li>
+                    </ul>
+                </div>
+                <div class="content-section">
+                    <h4>聯絡圈</h4>
+                    <ul class="sub-list">
+                        <li>保險</li><li>稅理士</li><li>遺品整理</li><li>經營支援</li><li>招募支援</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="member-card">
+            <div class="card-header">
+                <h3>筒井 優太 (つつい ゆうた)</h3>
+                <p>專業領域: 殘障兒・者家庭專門FP</p>
+                <span class="toggle-icon">+</span>
+            </div>
+            <div class="card-content">
+                <div class="content-section">
+                    <h4>基本資料</h4>
+                    <ul>
+                        <li><strong>公司名稱:</strong><span>索尼人壽保險株式會社</span></li>
+                        <li><strong>所在地:</strong><span>京都府相樂郡精華町</span></li>
+                        <li><strong>經驗年數:</strong><span>3年</span></li>
+                        <li><strong>過往職業:</strong><span>壽司店、物理治療師</span></li>
+                        <li><strong>家庭資訊:</strong><span>配偶: 有；子女: 長女、長男；寵物: 無</span></li>
+                        <li><strong>興趣:</strong><span>海釣、音樂、Live、咖啡、美食</span></li>
+                        <li><strong>強烈願望:</strong><span>成為殘障家庭的支柱。</span></li>
+                        <li><strong>不為人知:</strong><span>有潔癖，喜歡小物。</span></li>
+                        <li><strong>成功關鍵:</strong><span>運氣好，決斷快。</span></li>
+                    </ul>
+                </div>
+                <div class="content-section">
+                    <h4>G.A.I.N.S. 工作表</h4>
+                    <ul>
+                        <li><strong>目標:</strong><span>商業: 成為殘障家庭需要的人；個人: 成為好爸爸</span></li>
+                        <li><strong>成就:</strong><span>商業: 社長賞/MDRT入圍；個人: 足球縣選拔隊長</span></li>
+                        <li><strong>興趣:</strong><span>商業: 生涯規劃導入設施；個人: 參訪寺廟</span></li>
+                        <li><strong>人脈:</strong><span>商業: 士業、醫師、設施；個人: 釣友、早餐友</span></li>
+                        <li><strong>技能:</strong><span>商業: 物理治療師、FP2級等；個人: 知道京都美食</span></li>
+                    </ul>
+                </div>
+                <div class="content-section">
+                    <h4>尋求的引薦</h4>
+                    <ul class="sub-list">
+                        <li>殘障兒設施</li>
+                        <li>就勞支援設施</li>
+                        <li>有殘障孩子的父母</li>
+                    </ul>
+                </div>
+                <div class="content-section">
+                    <h4>聯絡圈</h4>
+                    <ul class="sub-list">
+                        <li>稅理士</li><li>司法書士</li><li>住宅工務店</li><li>銀行</li><li>OA 業務</li><li>不動產業</li><li>整骨院</li><li>設計</li><li>咖啡廳</li><li>殘障設施</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="member-card">
+            <div class="card-header">
+                <h3>藤竹 克 (ふじたけ まさる)</h3>
+                <p>專業領域: 資產形成</p>
+                <span class="toggle-icon">+</span>
+            </div>
+            <div class="card-content">
+                <div class="content-section">
+                    <h4>基本資料</h4>
+                    <ul>
+                        <li><strong>公司名稱:</strong><span>MetLife 生命保險株式會社</span></li>
+                        <li><strong>所在地:</strong><span>大阪市北區天滿橋 OAP 大樓</span></li>
+                        <li><strong>經驗年數:</strong><span>1年3個月</span></li>
+                        <li><strong>過往職業:</strong><span>多行業業務、企劃、總務、財務</span></li>
+                        <li><strong>家庭資訊:</strong><span>配偶: 有；子女: 兩女；寵物: 無</span></li>
+                        <li><strong>興趣:</strong><span>戲劇、電影、運動、閱讀</span></li>
+                        <li><strong>強烈願望:</strong><span>希望妻子覺得這是美好的人生。</span></li>
+                        <li><strong>不為人知:</strong><span>其實非常纖細。</span></li>
+                        <li><strong>成功關鍵:</strong><span>積極解讀，不歸咎他人。</span></li>
+                    </ul>
+                </div>
+                <div class="content-section">
+                    <h4>G.A.I.N.S. 工作表</h4>
+                    <ul>
+                        <li><strong>目標:</strong><span>商業: 普及金融知識；個人: 比妻子健康長壽</span></li>
+                        <li><strong>成就:</strong><span>商業: 9份工作經驗豐富；個人: 59歲入全球企業</span></li>
+                        <li><strong>興趣:</strong><span>商業: AI 的影響；個人: 日本的未來</span></li>
+                        <li><strong>人脈:</strong><span>商業: 人脈擴展中；個人: 老同學、新朋友</span></li>
+                        <li><strong>技能:</strong><span>商業: 處變不驚；個人: 壓力大也能睡</span></li>
+                    </ul>
+                </div>
+                <div class="content-section">
+                    <h4>尋求的引薦</h4>
+                    <ul class="sub-list">
+                        <li>65歲左右的企業經營者</li>
+                        <li>有獲利的個人事業主</li>
+                        <li>即將退休的人</li>
+                    </ul>
+                </div>
+                <div class="content-section">
+                    <h4>聯絡圈</h4>
+                    <ul class="sub-list">
+                        <li>稅理士</li><li>司法書士</li><li>福祉設施</li><li>醫療法人</li><li>美容/理髮店</li><li>整骨院</li><li>超市/家電</li><li>飲食店</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="member-card">
+            <div class="card-header">
+                <h3>藤本 佳美 (ふじもと よしみ)</h3>
+                <p>專業領域: 司法書士</p>
+                <span class="toggle-icon">+</span>
+            </div>
+            <div class="card-content">
+                <div class="content-section">
+                    <h4>基本資料</h4>
+                    <ul>
+                        <li><strong>公司名稱:</strong><span>司法書士 あしたばオフィス</span></li>
+                        <li><strong>所在地:</strong><span>大阪市北區天神橋 第五新興大樓</span></li>
+                        <li><strong>經驗年數:</strong><span>6年+</span></li>
+                        <li><strong>過往職業:</strong><span>網頁設計、OL、收銀、業務支援</span></li>
+                        <li><strong>家庭資訊:</strong><span>配偶: 有；寵物: 喜樂蒂</span></li>
+                        <li><strong>興趣:</strong><span>狗、體驗講座、美食、落語、建築</span></li>
+                        <li><strong>強烈願望:</strong><span>一輩子輪流養3隻狗。</span></li>
+                        <li><strong>不為人知:</strong><span>懶惰/有幹勁，惡質商法狂熱者。</span></li>
+                        <li><strong>成功關鍵:</strong><span>他人成就自我。</span></li>
+                    </ul>
+                </div>
+                <div class="content-section">
+                    <h4>G.A.I.N.S. 工作表</h4>
+                    <ul>
+                        <li><strong>目標:</strong><span>商業: 建立介紹網絡；個人: 建家，辦狗活動</span></li>
+                        <li><strong>成就:</strong><span>商業: 司法書士會幹部，可代理訴訟；個人: 養狗，動物/漢字檢定</span></li>
+                        <li><strong>興趣:</strong><span>商業: 靠感謝賺錢；個人: 狗友，新價值觀</span></li>
+                        <li><strong>人脈:</strong><span>商業: 士業；個人: 狗友</span></li>
+                        <li><strong>技能:</strong><span>商業: 判斷委託；個人: 簡單說明，社交</span></li>
+                    </ul>
+                </div>
+                <div class="content-section">
+                    <h4>尋求的引薦</h4>
+                    <ul class="sub-list">
+                        <li>有繼承需求/想規劃身後事的人</li>
+                        <li>想設立公司/變更董事的人</li>
+                        <li>考慮不動產買賣/贈與的人</li>
+                    </ul>
+                </div>
+                <div class="content-section">
+                    <h4>聯絡圈</h4>
+                    <ul class="sub-list">
+                        <li>稅理士</li><li>律師</li><li>行政書士</li><li>保險業</li><li>不動產業</li><li>土地房屋調查士</li><li>中小企業診斷士</li><li>顧問</li><li>葬儀社</li><li>古物商</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="member-card">
+            <div class="card-header">
+                <h3>日向 明男 (ひなた あきお)</h3>
+                <p>專業領域: 金屬廢料回收</p>
+                <span class="toggle-icon">+</span>
+            </div>
+            <div class="card-content">
+                <div class="content-section">
+                    <h4>基本資料</h4>
+                    <ul>
+                        <li><strong>公司名稱:</strong><span>株式會社 J・C 品 (Sky Metal)</span></li>
+                        <li><strong>所在地:</strong><span>山梨縣 / 奈良縣</span></li>
+                        <li><strong>經驗年數:</strong><span>14年</span></li>
+                        <li><strong>過往職業:</strong><span>業務</span></li>
+                        <li><strong>家庭資訊:</strong><span>配偶: 徵求中；子女: 兩女；寵物: 興趣大型犬</span></li>
+                        <li><strong>興趣:</strong><span>車子、B級美食</span></li>
+                        <li><strong>強烈願望:</strong><span>回收資源，留給下一代。</span></li>
+                        <li><strong>不為人知:</strong><span>初見會緊張。</span></li>
+                        <li><strong>成功關鍵:</strong><span>誠心誠意。</span></li>
+                    </ul>
+                </div>
+                <div class="content-section">
+                    <h4>G.A.I.N.S. 工作表</h4>
+                    <ul>
+                        <li><strong>目標:</strong><span>商業: 國內廢料100%再利用；個人: 讓女兒不感單親</span></li>
+                        <li><strong>成就:</strong><span>商業: 海內外夥伴；個人: 兩個女兒</span></li>
+                        <li><strong>興趣:</strong><span>商業: 再生資源；個人: 環遊世界</span></li>
+                        <li><strong>人脈:</strong><span>商業: 未指定；個人: 國內外友人</span></li>
+                        <li><strong>技能:</strong><span>商業: 14年經營經驗；個人: 中文讀寫</span></li>
+                    </ul>
+                </div>
+                <div class="content-section">
+                    <h4>尋求的引薦</h4>
+                    <ul class="sub-list">
+                        <li>機械/汽車/建築拆解業</li>
+                        <li>設備案</li>
+                        <li>金屬加工製造業</li>
+                    </ul>
+                </div>
+                <div class="content-section">
+                    <h4>聯絡圈</h4>
+                    <ul class="sub-list">
+                        <li>運輸</li><li>保險</li><li>軟體開發</li><li>建設機械</li><li>社勞士</li><li>會計士</li><li>人才派遣</li><li>律師</li><li>鎖匠</li><li>金屬回收</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="member-card">
+            <div class="card-header">
+                <h3>木下 拓海 (きした たくみ)</h3>
+                <p>專業領域: 交換卡片收購販售</p>
+                <span class="toggle-icon">+</span>
+            </div>
+            <div class="card-content">
+                <div class="content-section">
+                    <h4>基本資料</h4>
+                    <ul>
+                        <li><strong>公司名稱:</strong><span>株式會社 Departure</span></li>
+                        <li><strong>所在地:</strong><span>奈良縣橿原市</span></li>
+                        <li><strong>經驗年數:</strong><span>4年</span></li>
+                        <li><strong>過往職業:</strong><span>Panasonic 商品開發/技術業務</span></li>
+                        <li><strong>家庭資訊:</strong><span>配偶: 有；子女: 兩女；寵物: 無</span></li>
+                        <li><strong>興趣:</strong><span>喝酒、陪孩子、工作</span></li>
+                        <li><strong>強烈願望:</strong><span>讓夥伴經濟自由。</span></li>
+                        <li><strong>不為人知:</strong><span>易厭倦、懶惰。</span></li>
+                        <li><strong>成功關鍵:</strong><span>正向思考，認真對人。</span></li>
+                    </ul>
+                </div>
+                <div class="content-section">
+                    <h4>G.A.I.N.S. 工作表</h4>
+                    <ul>
+                        <li><strong>目標:</strong><span>商業: 拓展連結；個人: 移居鄉下</span></li>
+                        <li><strong>成就:</strong><span>商業: 創立物販學校、經營卡店；個人: 岐阜大學碩士</span></li>
+                        <li><strong>興趣:</strong><span>商業: 川普關稅；個人: 家庭菜園</span></li>
+                        <li><strong>人脈:</strong><span>商業: 川普關稅；個人: 迷你番茄栽培</span></li>
+                        <li><strong>技能:</strong><span>商業: 網路企劃、人才交流；個人: 正向/邏輯思考</span></li>
+                    </ul>
+                </div>
+                <div class="content-section">
+                    <h4>尋求的引薦</h4>
+                    <ul class="sub-list">
+                        <li>想買寶可夢卡的人</li>
+                        <li>想用寶可夢卡引流的 BtoC 事業者</li>
+                        <li>想將卡片銷往海外的人</li>
+                    </ul>
+                </div>
+                <div class="content-section">
+                    <h4>聯絡圈</h4>
+                    <ul class="sub-list">
+                        <li>國際物流</li><li>餐飲</li><li>入境旅遊</li><li>活動業者</li><li>不動產</li><li>律師</li><li>老人院</li><li>兒童設施</li><li>葬儀社</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="member-card">
+            <div class="card-header">
+                <h3>木村 ひとみ (きむら ひとみ)</h3>
+                <p>專業領域: 瑜珈教練</p>
+                <span class="toggle-icon">+</span>
+            </div>
+            <div class="card-content">
+                <div class="content-section">
+                    <h4>基本資料</h4>
+                    <ul>
+                        <li><strong>公司名稱:</strong><span>yoga iris</span></li>
+                        <li><strong>所在地:</strong><span>奈良縣橿原市</span></li>
+                        <li><strong>經驗年數:</strong><span>7年</span></li>
+                        <li><strong>過往職業:</strong><span>餐飲、醫療事務、美甲師等</span></li>
+                        <li><strong>家庭資訊:</strong><span>配偶: 有；子女: 大學生、國中生；寵物: 狗</span></li>
+                        <li><strong>興趣:</strong><span>料理、烘焙、咖啡廳、韓劇、高爾夫</span></li>
+                        <li><strong>強烈願望:</strong><span>透過瑜珈讓人幸福。</span></li>
+                        <li><strong>不為人知:</strong><span>隨處可睡、愛斷捨離。</span></li>
+                        <li><strong>成功關鍵:</strong><span>笑容、認同、正向、挑戰。</span></li>
+                    </ul>
+                </div>
+                <div class="content-section">
+                    <h4>G.A.I.N.S. 工作表</h4>
+                    <ul>
+                        <li><strong>目標:</strong><span>商業: 讓人體驗瑜珈效果；個人: 介護資格、草裙舞</span></li>
+                        <li><strong>成就:</strong><span>商業: 活動瑜珈；個人: 結婚、育兒、家事、瑜珈</span></li>
+                        <li><strong>興趣:</strong><span>商業: 企業瑜珈；個人: 高爾夫、草裙舞</span></li>
+                        <li><strong>人脈:</strong><span>商業: 學生；個人: 朋友、媽媽友</span></li>
+                        <li><strong>技能:</strong><span>商業: 活動瑜珈；個人: 各類瑜珈教練、美甲/介護資格</span></li>
+                    </ul>
+                </div>
+                <div class="content-section">
+                    <h4>尋求的引薦</h4>
+                    <ul class="sub-list">
+                        <li>想運動/減肥/改善體質的人</li>
+                        <li>想調整姿勢/改善疼痛/產後矯正的人</li>
+                        <li>想調整身心的人</li>
+                    </ul>
+                </div>
+                <div class="content-section">
+                    <h4>聯絡圈</h4>
+                    <ul class="sub-list">
+                        <li>有不適的人</li><li>辦公室工作者</li><li>銷售員/美容顧問</li><li>婦產科/牙醫</li><li>芳療師/美容師</li><li>日照中心</li><li>學校</li><li>婚禮相關</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+    </div> <script>
+        document.querySelectorAll('.card-header').forEach(header => {
+            header.addEventListener('click', (event) => {
+                const clickedCard = event.currentTarget.parentElement;
+                const isActive = clickedCard.classList.contains('active');
+
+                // 先關閉所有卡片
+                document.querySelectorAll('.member-card').forEach(card => {
+                    card.classList.remove('active');
+                });
+
+                // 如果被點擊的卡片原本不是展開的，就展開它
+                // 這樣可以確保點擊已開的會關閉，點擊未開的會開啟並關閉其他
+                if (!isActive) {
+                    clickedCard.classList.add('active');
+                }
+            });
+        });
+    </script>
+
+</body>
+</html>
